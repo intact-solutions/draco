@@ -143,14 +143,15 @@ bool PlyDecoder::DecodeVertexData(const PlyElement *vertex_element) {
     PlyPropertyReader<double> y_reader(y_prop);
     PlyPropertyReader<double> z_reader(z_prop);
     GeometryAttribute va;
-    va.Init(GeometryAttribute::POSITION, nullptr, 3, DT_FLOAT64, false,
-            sizeof(double) * 3, 0);
+    va.Init(GeometryAttribute::POSITION, nullptr, 3, DT_FLOAT32, false,
+            sizeof(float) * 3, 0);
     const int att_id = out_point_cloud_->AddAttribute(va, true, num_vertices);
     for (PointIndex::ValueType i = 0; i < num_vertices; ++i) {
-      std::array<double, 3> val;
-      val[0] = x_reader.ReadValue(i);
-      val[1] = y_reader.ReadValue(i);
-      val[2] = z_reader.ReadValue(i);
+      // https://github.com/google/draco/issues/360#issuecomment-375490260
+      std::array<float, 3> val;
+      val[0] = (float)x_reader.ReadValue(i);
+      val[1] = (float)y_reader.ReadValue(i);
+      val[2] = (float)z_reader.ReadValue(i);
       out_point_cloud_->attribute(att_id)->SetAttributeValue(
           AttributeValueIndex(i), &val[0]);
     }
